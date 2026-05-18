@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ladenblick — Die iPad-Kasse für Schülerfirmen</title>
+  <meta name="description" content="Ladenblick ist die erste iPad-Kassensoftware speziell für Schülerfirmen. Vollständig offline, DSGVO-konform, einfach zu bedienen.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ─────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────── */
+    :root {
+      --navy:       #1E3A5F;
+      --navy-dark:  #152D4A;
+      --blue:       #2563EB;
+      --blue-hover: #1D4ED8;
+      --bg:         #FFFFFF;
+      --surface:    #F8FAFC;
+      --border:     #E2E8F0;
+      --text:       #0F172A;
+      --muted:      #475569;
+      --subtle:     #94A3B8;
+      --green:      #16A34A;
+
+      --ff-display: 'Fraunces', Georgia, serif;
+      --ff-body:    'Plus Jakarta Sans', -apple-system, sans-serif;
+
+      --r-sm:  8px;
+      --r:     12px;
+      --r-lg:  20px;
+      --r-xl:  32px;
+
+      --sh-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --sh:    0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+      --sh-lg: 0 16px 48px rgba(0,0,0,.12), 0 6px 16px rgba(0,0,0,.06);
+
+      --mw:     1120px;
+      --nav-h:  68px;
+    }
+
+    /* ─────────────────────────────────────────
+       RESET
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--ff-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    button { font-family: var(--ff-body); }
+
+    /* ─────────────────────────────────────────
+       SCROLL REVEAL
+    ───────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity .65s cubic-bezier(.16,1,.3,1),
+                  transform .65s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .d1 { transition-delay: .08s; }
+    .d2 { transition-delay: .16s; }
+    .d3 { transition-delay: .24s; }
+    .d4 { transition-delay: .32s; }
+
+    /* ─────────────────────────────────────────
+       LAYOUT
+    ───────────────────────────────────────── */
+    .container {
+      max-width: var(--mw);
+      margin: 0 auto;
+      padding: 0 48px;
+    }
+    section { padding: 96px 0; }
+
+    h1, h2, h3 {
+      font-family: var(--ff-display);
+      line-height: 1.08;
+      letter-spacing: -.025em;
+    }
+
+    .label {
+      font-family: var(--ff-body);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(30px, 3.6vw, 46px);
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px;
+      color: var(--muted);
+      max-width: 500px;
+      margin-bottom: 60px;
+      line-height: 1.72;
+    }
+
+    /* ─────────────────────────────────────────
+       NAVBAR
+    ───────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: var(--nav-h);
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid transparent;
+      transition: border-color .25s;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 100%; max-width: var(--mw); margin: 0 auto; padding: 0 48px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 9px;
+    }
+    .nav-logo-mark {
+      width: 36px; height: 36px;
+      flex-shrink: 0; display: flex;
+    }
+    .nav-logo-text {
+      font-family: var(--ff-display);
+      font-size: 20px; font-weight: 700;
+      color: var(--navy); letter-spacing: -.04em;
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .btn-cta {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--blue); color: white;
+      font-size: 13.5px; font-weight: 600;
+      padding: 9px 18px; border-radius: 100px;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
+    }
+    .btn-cta:hover { background: var(--blue-hover); transform: translateY(-1px); }
+
+    @media (max-width: 800px) {
+      .nav-links li:not(:last-child) { display: none; }
+      .nav-inner { padding: 0 24px; }
+    }
+
+    /* ─────────────────────────────────────────
+       HERO
+    ───────────────────────────────────────── */
+    .hero {
+      padding-top: calc(var(--nav-h) + 88px);
+      padding-bottom: 72px;
+      overflow: hidden;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+    }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #EFF6FF; color: var(--blue);
+      font-size: 12.5px; font-weight: 600;
+      padding: 5px 13px; border-radius: 100px;
+      margin-bottom: 26px; letter-spacing: .01em;
+    }
+    .tag-dot {
+      width: 6px; height: 6px; background: var(--blue);
+      border-radius: 50%; animation: blink 2.2s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:.5; transform:scale(.75); }
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 5vw, 68px);
+      font-weight: 700; color: var(--navy);
+      margin-bottom: 22px; max-width: 510px;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue); }
+
+    .hero-sub {
+      font-size: 18px; color: var(--muted);
+      line-height: 1.72; margin-bottom: 38px; max-width: 420px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .btn-navy {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--navy); color: white;
+      font-size: 15px; font-weight: 600;
+      padding: 14px 26px; border-radius: var(--r);
+      border: none; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(30,58,95,.22);
+      transition: background .2s, transform .15s, box-shadow .2s;
+    }
+    .btn-navy:hover {
+      background: var(--navy-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30,58,95,.28);
+    }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: transparent; color: var(--navy);
+      font-size: 15px; font-weight: 600;
+      padding: 12px 22px; border-radius: var(--r);
+      border: 2px solid var(--border); cursor: pointer;
+      transition: border-color .2s, background .2s, transform .15s;
+    }
+    .btn-ghost:hover {
+      border-color: var(--navy); background: var(--surface);
+      transform: translateY(-2px);
+    }
+
+    /* iPad mockup */
+    .hero-visual {
+      display: flex; justify-content: flex-end; align-items: center;
+      position: relative;
+    }
+    .hero-visual::before {
+      content: '';
+      position: absolute;
+      width: 520px; height: 420px;
+      background: radial-gradient(ellipse, #EFF6FF 0%, transparent 68%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      pointer-events: none; z-index: 0;
+    }
+    .ipad-wrap {
+      position: relative; z-index: 1;
+      filter: drop-shadow(0 20px 44px rgba(0,0,0,.18))
+              drop-shadow(0 6px 14px rgba(0,0,0,.10));
+    }
+    .ipad {
+      width: 448px; height: 336px;
+      background: linear-gradient(155deg, #2c2c30 0%, #1a1a1e 100%);
+      border-radius: 26px; padding: 14px;
+      position: relative;
+      border: 1px solid rgba(255,255,255,.07);
+    }
+    .ipad::before {
+      content: '';
+      position: absolute; top: 0; left: 16px; right: 16px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent);
+    }
+    .ipad-cam {
+      position: absolute; top: 50%; right: -9px;
+      transform: translateY(-50%);
+      width: 7px; height: 7px; background: #2a2a2e;
+      border-radius: 50%; border: 1.5px solid #3a3a3e;
+    }
+    .ipad-btn {
+      position: absolute; left: -4px; top: 72px;
+      width: 4px; height: 28px; background: #2a2a2e;
+      border-radius: 2px 0 0 2px;
+    }
+    .ipad-btn.b2 { top: 108px; height: 22px; }
+    .ipad-screen {
+      width: 100%; height: 100%;
+      border-radius: 13px; overflow: hidden;
+      background: #F1F5F9; position: relative;
+    }
+
+    /* Simulated POS UI */
+    .ui { display: flex; flex-direction: column; width: 100%; height: 100%; }
+    .ui-bar {
+      height: 26px; background: var(--navy);
+      display: flex; align-items: center; padding: 0 11px; gap: 7px;
+      flex-shrink: 0;
+    }
+    .ui-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.3); }
+    .ui-bar-title {
+      font-family: var(--ff-body); font-size: 8.5px; font-weight: 700;
+      color: rgba(255,255,255,.85); letter-spacing: .07em; margin-left: 4px;
+    }
+    .ui-bar-right {
+      margin-left: auto; font-family: var(--ff-body);
+      font-size: 8px; color: rgba(255,255,255,.55);
+    }
+    .ui-body { flex: 1; display: flex; padding: 9px; gap: 9px; min-height: 0; }
+    .ui-grid {
+      flex: 1;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 5px; align-content: start;
+    }
+    .ui-card {
+      background: white; border-radius: 5px; padding: 5px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .ui-img {
+      width: 100%; aspect-ratio: 1; border-radius: 3px;
+      background: #E2E8F0;
+    }
+    .ui-img.a { background: #DBEAFE; }
+    .ui-img.b { background: #D1FAE5; }
+    .ui-img.c { background: #FEF3C7; }
+    .ui-img.d { background: #FCE7F3; }
+    .ui-img.e { background: #E0E7FF; }
+    .ui-img.f { background: #FFEDD5; }
+    .ui-img.g { background: #F0FDF4; }
+    .ui-img.h { background: #FFF1F2; }
+    .ui-name { height: 4px; background: #CBD5E1; border-radius: 2px; width: 80%; }
+    .ui-price { height: 3px; background: #93C5FD; border-radius: 2px; width: 50%; }
+    .ui-cart {
+      width: 84px; background: white; border-radius: 7px;
+      padding: 8px; display: flex; flex-direction: column; gap: 5px;
+    }
+    .ui-cart-head { height: 5px; background: var(--navy); border-radius: 2px; width: 65%; opacity: .7; }
+    .ui-cart-row  { height: 14px; background: #F1F5F9; border-radius: 3px; }
+    .ui-cart-total { margin-top: auto; height: 18px; background: var(--navy); border-radius: 4px; opacity: .88; }
+
+    @media (max-width: 1060px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 52px; }
+      .hero-visual { justify-content: center; }
+      .ipad { width: 380px; height: 285px; }
+    }
+    @media (max-width: 560px) {
+      .ipad { width: 300px; height: 225px; }
+      .hero { padding-bottom: 56px; }
+    }
+
+    /* ─────────────────────────────────────────
+       TRUST BAR
+    ───────────────────────────────────────── */
+    .trust {
+      padding: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .trust-inner {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      max-width: var(--mw); margin: 0 auto; padding: 0 48px;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 28px 0;
+    }
+    .trust-item + .trust-item { border-left: 1px solid var(--border); padding-left: 40px; }
+    .trust-icon-box {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--navy);
+      box-shadow: var(--sh-sm);
+    }
+    .trust-text { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.4; }
+
+    @media (max-width: 720px) {
+      .trust-inner { grid-template-columns: 1fr; padding: 0 24px; }
+      .trust-item + .trust-item { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 20px; margin-top: 4px; }
+    }
+
+    /* ─────────────────────────────────────────
+       HOW IT WORKS
+    ───────────────────────────────────────── */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 48px; position: relative;
+    }
+    .steps-grid::before {
+      content: '';
+      position: absolute; top: 23px;
+      left: calc(50% / 3 + 24px);
+      right: calc(50% / 3 + 24px);
+      height: 1px;
+      background: linear-gradient(90deg, rgba(37,99,235,.35), rgba(37,99,235,.1));
+      pointer-events: none;
+    }
+    .step { position: relative; }
+    .step-num-bg {
+      font-family: var(--ff-display);
+      font-size: 108px; font-weight: 700;
+      color: var(--surface); position: absolute;
+      top: -20px; left: -8px; line-height: 1;
+      pointer-events: none; user-select: none; z-index: 0;
+    }
+    .step-content { position: relative; z-index: 1; }
+    .step-circle {
+      width: 46px; height: 46px; background: var(--navy);
+      color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-body); font-size: 16px; font-weight: 700;
+      margin-bottom: 22px;
+    }
+    .step h3 {
+      font-family: var(--ff-body);
+      font-size: 17px; font-weight: 700;
+      color: var(--navy); margin-bottom: 10px;
+      letter-spacing: -.01em;
+    }
+    .step p { font-size: 14.5px; color: var(--muted); line-height: 1.65; }
+
+    @media (max-width: 720px) {
+      .steps-grid { grid-template-columns: 1fr; gap: 36px; }
+      .steps-grid::before { display: none; }
+      .step-num-bg { display: none; }
+    }
+
+    /* ─────────────────────────────────────────
+       FEATURES
+    ───────────────────────────────────────── */
+    .features { background: var(--surface); }
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+    }
+    .feat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 30px 32px;
+      position: relative; overflow: hidden;
+      transition: box-shadow .22s, transform .22s, border-color .22s;
+    }
+    .feat-card::after {
+      content: '';
+      position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
+      background: var(--blue); border-radius: 0 3px 3px 0;
+      transform: scaleY(0); transform-origin: center;
+      transition: transform .28s cubic-bezier(.16,1,.3,1);
+    }
+    .feat-card:hover { box-shadow: var(--sh); transform: translateY(-3px); border-color: transparent; }
+    .feat-card:hover::after { transform: scaleY(1); }
+
+    .feat-icon {
+      width: 44px; height: 44px;
+      background: #EFF6FF;
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    .feat-card h3 {
+      font-family: var(--ff-body);
+      font-size: 16.5px; font-weight: 700;
+      color: var(--navy); margin-bottom: 8px; letter-spacing: -.01em;
+    }
+    .feat-card p { font-size: 14px; color: var(--muted); line-height: 1.62; }
+
+    @media (max-width: 680px) { .feat-grid { grid-template-columns: 1fr; } }
+
+    /* ─────────────────────────────────────────
+       PILOT
+    ───────────────────────────────────────── */
+    .pilot {
+      background: var(--navy);
+      padding: 80px 0;
+      position: relative; overflow: hidden;
+    }
+    .pilot::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+    .pilot::after {
+      content: 'PILOT';
+      position: absolute; right: -20px; top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--ff-display); font-size: 220px; font-weight: 700;
+      color: rgba(255,255,255,.028); line-height: 1;
+      pointer-events: none; user-select: none;
+    }
+    .pilot-inner {
+      position: relative; z-index: 1;
+      text-align: center; max-width: 620px;
+      margin: 0 auto; padding: 0 48px;
+    }
+    .pilot-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.09); color: rgba(255,255,255,.88);
+      font-size: 11.5px; font-weight: 700;
+      padding: 5px 14px; border-radius: 100px;
+      margin-bottom: 26px; letter-spacing: .07em; text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,.16);
+    }
+    .pilot-badge svg { color: rgba(255,255,255,.7); }
+    .pilot h2 {
+      font-size: clamp(30px, 3.8vw, 46px); font-weight: 700;
+      color: white; margin-bottom: 18px;
+    }
+    .pilot p {
+      font-size: 17.5px; color: rgba(255,255,255,.72);
+      line-height: 1.72; margin-bottom: 38px;
+    }
+    .btn-white {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: white; color: var(--navy);
+      font-family: var(--ff-body);
+      font-size: 15.5px; font-weight: 700;
+      padding: 15px 34px; border-radius: var(--r);
+      border: none; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+      transition: transform .15s, box-shadow .2s;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.26); }
+
+    /* ─────────────────────────────────────────
+       PRICING
+    ───────────────────────────────────────── */
+    .pricing { background: var(--bg); }
+    .pricing-center { text-align: center; }
+    .pricing-center .section-sub { margin-left: auto; margin-right: auto; }
+    .price-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 22px; max-width: 780px; margin: 0 auto;
+    }
+    .price-card {
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 38px; background: white;
+    }
+    .price-card.pro {
+      border: 2px solid var(--navy);
+      box-shadow: var(--sh-lg);
+      position: relative;
+    }
+    .pro-badge {
+      position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+      background: var(--navy); color: white;
+      font-size: 11.5px; font-weight: 700;
+      padding: 3px 15px; border-radius: 100px;
+      white-space: nowrap; letter-spacing: .04em;
+    }
+    .price-tier {
+      font-family: var(--ff-body); font-size: 12px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 14px;
+    }
+    .price-amount {
+      font-family: var(--ff-display);
+      font-size: 50px; font-weight: 700;
+      color: var(--navy); line-height: 1; margin-bottom: 6px;
+    }
+    .price-amount span { font-size: 18px; font-weight: 400; color: var(--muted); }
+    .price-note { font-size: 12.5px; color: var(--subtle); margin-bottom: 28px; }
+    .price-feats {
+      list-style: none; margin-bottom: 32px;
+      display: flex; flex-direction: column; gap: 11px;
+    }
+    .price-feats li {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; color: var(--muted); line-height: 1.5;
+    }
+    .check { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; }
+    .price-btn {
+      width: 100%; padding: 13px; border-radius: var(--r);
+      font-family: var(--ff-body); font-size: 14.5px; font-weight: 600;
+      cursor: pointer; transition: all .2s; text-align: center; display: block;
+      border: 2px solid var(--border); background: transparent; color: var(--navy);
+    }
+    .price-btn:hover { border-color: var(--navy); background: var(--surface); }
+    .price-btn.solid {
+      background: var(--navy); border-color: var(--navy); color: white;
+      box-shadow: 0 2px 8px rgba(30,58,95,.2);
+    }
+    .price-btn.solid:hover {
+      background: var(--navy-dark); transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(30,58,95,.26);
+    }
+
+    @media (max-width: 580px) { .price-grid { grid-template-columns: 1fr; } }
+
+    /* ─────────────────────────────────────────
+       FAQ
+    ───────────────────────────────────────── */
+    .faq { background: var(--surface); }
+    .faq-list {
+      max-width: 700px; margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg); overflow: hidden;
+      display: flex; flex-direction: column; gap: 1px;
+      background: var(--border);
+    }
+    .faq-item { background: white; }
+    .faq-q {
+      width: 100%; display: flex; align-items: center;
+      justify-content: space-between; gap: 14px;
+      padding: 22px 26px; background: none; border: none;
+      text-align: left; font-family: var(--ff-body);
+      font-size: 15.5px; font-weight: 600; color: var(--text);
+      cursor: pointer; transition: background .15s;
+    }
+    .faq-q:hover { background: var(--surface); }
+    .faq-ico {
+      width: 28px; height: 28px;
+      background: var(--surface); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--navy);
+      transition: background .2s, transform .3s, color .2s;
+    }
+    .faq-item.open .faq-ico { background: var(--navy); color: white; transform: rotate(45deg); }
+    .faq-ans {
+      max-height: 0; overflow: hidden;
+      transition: max-height .38s cubic-bezier(.16,1,.3,1);
+    }
+    .faq-ans-inner {
+      border-top: 1px solid var(--border);
+      padding: 18px 26px 22px;
+      font-size: 14.5px; color: var(--muted); line-height: 1.72;
+    }
+
+    /* ─────────────────────────────────────────
+       CONTACT
+    ───────────────────────────────────────── */
+    .contact { background: var(--bg); }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1.1fr;
+      gap: 80px; align-items: start;
+    }
+    .contact-meta h2 {
+      font-size: clamp(28px, 3.2vw, 38px);
+      color: var(--navy); margin-bottom: 14px;
+    }
+    .contact-meta p { font-size: 15.5px; color: var(--muted); line-height: 1.72; margin-bottom: 28px; }
+    .contact-detail {
+      display: flex; align-items: center; gap: 11px;
+      font-size: 13.5px; color: var(--muted); margin-bottom: 10px;
+    }
+    .c-icon {
+      width: 34px; height: 34px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--navy); flex-shrink: 0;
+    }
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg label { font-size: 12.5px; font-weight: 600; color: var(--text); }
+    .fg input, .fg textarea {
+      font-family: var(--ff-body); font-size: 14.5px; color: var(--text);
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--r); padding: 11px 15px;
+      transition: border-color .2s, box-shadow .2s; outline: none; resize: none;
+    }
+    .fg input:focus, .fg textarea:focus {
+      border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+    .fg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    @media (max-width: 720px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 44px; }
+      .fg-row { grid-template-columns: 1fr; }
+    }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    .footer { background: var(--navy); padding: 30px 0; }
+    .footer-inner {
+      max-width: var(--mw); margin: 0 auto; padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 14px;
+    }
+    .footer-logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .footer-logo-mark {
+      width: 28px; height: 28px;
+      flex-shrink: 0; display: flex;
+    }
+    .footer-logo-text {
+      font-family: var(--ff-display); font-size: 16px; font-weight: 700;
+      color: white; letter-spacing: -.04em;
+    }
+    .footer-copy { font-size: 12.5px; color: rgba(255,255,255,.45); text-align: center; }
+    .footer-links { display: flex; gap: 18px; list-style: none; }
+    .footer-links a { font-size: 12.5px; color: rgba(255,255,255,.45); transition: color .2s; }
+    .footer-links a:hover { color: rgba(255,255,255,.88); }
+
+    @media (max-width: 580px) {
+      .footer-inner { flex-direction: column; text-align: center; }
+      .container { padding: 0 24px; }
+      section { padding: 64px 0; }
+      .trust-inner { padding: 0 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAVBAR ─── -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-mark">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#1E3A5F"/>
+            <rect x="7" y="7" width="26" height="5" rx="2.5" fill="white"/>
+            <rect x="10" y="13" width="20" height="16" rx="1.5" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.3"/>
+            <line x1="13" y1="19" x2="21" y2="19" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="13" y1="23" x2="19" y2="23" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+            <circle cx="26" cy="22" r="2.5" fill="white"/>
+            <rect x="7" y="30" width="26" height="3" rx="1.5" fill="white" fill-opacity="0.35"/>
+          </svg>
+        </div>
+        <span class="nav-logo-text">Ladenblick</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#funktionen">Funktionen</a></li>
+        <li><a href="#datenschutz">Datenschutz</a></li>
+        <li><a href="#preise">Preise</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+        <li><a href="#kontakt" class="btn-cta">Pilotschule werden →</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-inner">
+
+        <div>
+          <div class="hero-tag reveal">
+            <span class="tag-dot"></span>
+            Speziell für Schülerfirmen gebaut
+          </div>
+          <h1 class="reveal d1">
+            Schluss mit dem<br>Kassenbuch per <em>Hand.</em>
+          </h1>
+          <p class="hero-sub reveal d2">
+            Die erste iPad-Kasse, die speziell für Schülerfirmen gebaut wurde.
+            Vollständig offline. DSGVO-konform. Kostenlos testen.
+          </p>
+          <div class="hero-actions reveal d3">
+            <a href="#kontakt" class="btn-navy">Pilotschule werden</a>
+            <a href="#wie" class="btn-ghost">Demo ansehen ↓</a>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal d2">
+          <div class="ipad-wrap">
+            <div class="ipad">
+              <div class="ipad-cam"></div>
+              <div class="ipad-btn"></div>
+              <div class="ipad-btn b2"></div>
+              <div class="ipad-screen">
+                <div class="ui">
+                  <div class="ui-bar">
+                    <div class="ui-dot"></div>
+                    <div class="ui-dot"></div>
+                    <div class="ui-bar-title">TILLA</div>
+                    <div class="ui-bar-right">Schicht: Maria S.</div>
+                  </div>
+                  <div class="ui-body">
+                    <div class="ui-grid">
+                      <div class="ui-card"><div class="ui-img a"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img b"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img c"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img d"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img e"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img f"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img g"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                      <div class="ui-card"><div class="ui-img h"></div><div class="ui-name"></div><div class="ui-price"></div></div>
+                    </div>
+                    <div class="ui-cart">
+                      <div class="ui-cart-head"></div>
+                      <div class="ui-cart-row"></div>
+                      <div class="ui-cart-row"></div>
+                      <div class="ui-cart-row"></div>
+                      <div class="ui-cart-total"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRUST BAR ─── -->
+  <div class="trust" id="datenschutz">
+    <div class="trust-inner">
+
+      <div class="trust-item reveal">
+        <div class="trust-icon-box">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <span class="trust-text">100 % offline — keine Daten verlassen das iPad</span>
+      </div>
+
+      <div class="trust-item reveal d1">
+        <div class="trust-icon-box">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="1" y1="1" x2="23" y2="23"/>
+            <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+            <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+            <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+            <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+            <line x1="12" y1="20" x2="12.01" y2="20"/>
+          </svg>
+        </div>
+        <span class="trust-text">Kein Internet nötig</span>
+      </div>
+
+      <div class="trust-item reveal d2">
+        <div class="trust-icon-box">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 12 11 14 15 10"/>
+          </svg>
+        </div>
+        <span class="trust-text">DSGVO-konform by design</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── HOW IT WORKS ─── -->
+  <section id="wie">
+    <div class="container">
+      <p class="label reveal">So funktioniert's</p>
+      <h2 class="section-title reveal d1">In drei Schritten zur digitalen Kasse</h2>
+      <p class="section-sub reveal d2">Von der Schüleranmeldung bis zum Kassenabschluss — alles in einer App, vollständig ohne Internet.</p>
+      <div class="steps-grid">
+        <div class="step reveal">
+          <div class="step-num-bg">01</div>
+          <div class="step-content">
+            <div class="step-circle">1</div>
+            <h3>Schüler meldet sich an</h3>
+            <p>Jeder Kassierer meldet sich mit Benutzername und Passwort an. Die Schicht beginnt — jede Transaktion ist eindeutig zugeordnet und nachvollziehbar.</p>
+          </div>
+        </div>
+        <div class="step reveal d1">
+          <div class="step-num-bg">02</div>
+          <div class="step-content">
+            <div class="step-circle">2</div>
+            <h3>Antippen, auswählen, bezahlen</h3>
+            <p>Produkte per Tipp in den Warenkorb. Das Wechselgeld wird sofort berechnet — kein Kopfrechnen, kein Fehler, kein Stress an der Kasse.</p>
+          </div>
+        </div>
+        <div class="step reveal d2">
+          <div class="step-num-bg">03</div>
+          <div class="step-content">
+            <div class="step-circle">3</div>
+            <h3>Kassenabschluss &amp; Bericht</h3>
+            <p>Am Schichtende: Bon drucken, Kasseninhalt zählen, Differenz prüfen. Der Admin sieht alle Umsätze auf einen Blick.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FEATURES ─── -->
+  <section class="features" id="funktionen">
+    <div class="container">
+      <p class="label reveal">Funktionen</p>
+      <h2 class="section-title reveal d1">Alles, was eine Schülerfirma braucht</h2>
+      <p class="section-sub reveal d2">Keine unnötigen Extras, kein Abo für Features, die Sie nie nutzen. Nur das, was in der Praxis zählt.</p>
+      <div class="feat-grid">
+
+        <div class="feat-card reveal">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Schüler-Login mit Rollenrechten</h3>
+          <p>Kassierer sehen nur die Kasse. Admins verwalten Produkte, Schüler und Berichte. Klare Trennung, keine Verwechslungen.</p>
+        </div>
+
+        <div class="feat-card reveal d1">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="14" y="14" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </div>
+          <h3>Produktkatalog mit Fotos &amp; Kategorien</h3>
+          <p>Übersichtlicher Produktraster mit Fotos, Preisen und Kategorien. Neue Artikel sind in Sekunden angelegt.</p>
+        </div>
+
+        <div class="feat-card reveal d2">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="12" x="2" y="6" rx="2"/>
+              <circle cx="12" cy="12" r="2"/>
+              <path d="M6 12h.01M18 12h.01"/>
+            </svg>
+          </div>
+          <h3>Wechselgeld-Berechnung in Echtzeit</h3>
+          <p>Einzahlbetrag eingeben — Wechselgeld erscheint sofort. Kein Rechnen, kein Fehler, kein Stress.</p>
+        </div>
+
+        <div class="feat-card reveal">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="20" x2="12" y2="10"/>
+              <line x1="18" y1="20" x2="18" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="16"/>
+            </svg>
+          </div>
+          <h3>Kassenabschluss mit Differenzanzeige</h3>
+          <p>Schichtende mit Kassenzählung: Erwartet vs. Tatsächlich. Abweichungen werden sofort sichtbar und protokolliert.</p>
+        </div>
+
+        <div class="feat-card reveal d1">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </div>
+          <h3>Bondruck (72 mm Thermodrucker)</h3>
+          <p>Kompatibel mit handelsüblichen 72-mm-Thermodruckern. Bon direkt aus der App drucken — kein Umweg.</p>
+        </div>
+
+        <div class="feat-card reveal d2">
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+              <polyline points="17 6 23 6 23 12"/>
+            </svg>
+          </div>
+          <h3>Umsatzberichte &amp; Transaktionshistorie</h3>
+          <p>Tagesumsätze, Bestseller, Umsatz pro Kassierer. Vollständige Transaktionshistorie für 90 Tage einsehbar.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PILOT CTA ─── -->
+  <section class="pilot">
+    <div class="pilot-inner">
+      <div class="pilot-badge reveal">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+        Limitiertes Angebot
+      </div>
+      <h2 class="reveal d1">Werden Sie unsere erste Pilotschule.</h2>
+      <p class="reveal d2">
+        Wir suchen eine Schule, die Ladenblick als erste einsetzt —
+        kostenlos für ein Schuljahr, im Gegenzug für Ihr Feedback.
+        Kein Risiko. Keine Verpflichtung.
+      </p>
+      <a href="#kontakt" class="btn-white reveal d3">Jetzt bewerben →</a>
+    </div>
+  </section>
+
+  <!-- ─── PRICING ─── -->
+  <section class="pricing" id="preise">
+    <div class="container">
+      <div class="pricing-center">
+        <p class="label reveal">Preise</p>
+        <h2 class="section-title reveal d1">Einfach. Transparent. Einmalig.</h2>
+        <p class="section-sub reveal d2">Kein monatliches Abo. Kein Kleingedrucktes. Einmal kaufen, für immer nutzen.</p>
+      </div>
+      <div class="price-grid">
+
+        <div class="price-card reveal">
+          <div class="price-tier">Starter</div>
+          <div class="price-amount">€0</div>
+          <div class="price-note">Kostenlos, für immer</div>
+          <ul class="price-feats">
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Bis zu 15 Produkte
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              3 Schülerkonten
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Alle Kernfunktionen
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Vollständig offline
+            </li>
+          </ul>
+          <a href="#kontakt" class="price-btn">Kostenlos herunterladen</a>
+        </div>
+
+        <div class="price-card pro reveal d1">
+          <div class="pro-badge">Kein Abo · Einmal kaufen</div>
+          <div class="price-tier">Pro</div>
+          <div class="price-amount">€49<span> / Schule</span></div>
+          <div class="price-note">Einmalige Zahlung · Keine Folgekosten</div>
+          <ul class="price-feats">
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Unbegrenzte Produkte
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Unbegrenzte Schülerkonten
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              CSV-Export der Transaktionen
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Prioritäts-Support
+            </li>
+            <li>
+              <svg class="check" viewBox="0 0 17 17" fill="none">
+                <circle cx="8.5" cy="8.5" r="8.5" fill="#DCFCE7"/>
+                <path d="M5 8.5l2.5 2.5 4.5-5" stroke="#16A34A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Alle zukünftigen Updates
+            </li>
+          </ul>
+          <a href="#kontakt" class="price-btn solid">Jetzt kaufen</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─── -->
+  <section class="faq">
+    <div class="container">
+      <p class="label reveal" style="text-align:center">FAQ</p>
+      <h2 class="section-title reveal d1" style="text-align:center;margin-bottom:44px">Häufige Fragen</h2>
+      <div class="faq-list reveal d2">
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Werden Schülerdaten gespeichert?
+            <span class="faq-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-ans">
+            <div class="faq-ans-inner">
+              Nein. Alle Daten verbleiben ausschließlich auf dem Gerät. Es gibt keine Serververbindung, keine Cloud-Synchronisation und keine externe Datenweitergabe. Ladenblick ist vollständig offline — by design.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Brauche ich eine Internetverbindung?
+            <span class="faq-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-ans">
+            <div class="faq-ans-inner">
+              Nein. Ladenblick funktioniert vollständig ohne Internetverbindung — auch in Schulgebäuden ohne WLAN-Zugang oder in schlechten Netzregionen.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Welche iPads werden unterstützt?
+            <span class="faq-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-ans">
+            <div class="faq-ans-inner">
+              Jedes iPad mit iPadOS 16 oder neuer. Das umfasst alle iPad-Modelle ab 2018 sowie alle iPad Air-, iPad Pro- und iPad mini-Generationen der letzten Jahre.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Brauchen Schüler eine Apple-ID?
+            <span class="faq-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-ans">
+            <div class="faq-ans-inner">
+              Nein. Ladenblick läuft auf einem einzigen Schul-iPad. Schülerkonten werden innerhalb der App angelegt und verwaltet — ohne individuelle Apple-IDs oder externe Accounts.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q">
+            Gibt es Kassenpflicht oder TSE-Anforderungen?
+            <span class="faq-ico">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-ans">
+            <div class="faq-ans-inner">
+              Nein. Schülerfirmen sind nach §4 Nr. 21 UStG von der Umsatzsteuer befreit und fallen nicht unter die Kassensicherungsverordnung (KassenSichV). TSE-Anforderungen bestehen nicht.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CONTACT ─── -->
+  <section class="contact" id="kontakt">
+    <div class="container">
+      <div class="contact-grid">
+
+        <div class="reveal">
+          <p class="label">Kontakt</p>
+          <h2>Sprechen wir.</h2>
+          <p>Interesse an Ladenblick, Fragen zur Pilotschule, oder einfach neugierig? Schreiben Sie uns — wir antworten innerhalb von 24 Stunden.</p>
+
+          <div class="contact-detail">
+            <span class="c-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            Entwickelt in Deutschland
+          </div>
+
+          <div class="contact-detail">
+            <span class="c-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                <path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>
+              </svg>
+            </span>
+            Speziell für Schülerfirmen
+          </div>
+
+          <div class="contact-detail">
+            <span class="c-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <polyline points="9 12 11 14 15 10"/>
+              </svg>
+            </span>
+            DSGVO-konform seit Tag eins
+          </div>
+        </div>
+
+        <div class="reveal d1">
+          <form class="contact-form" action="https://formspree.io/f/xjgzvnjw" method="POST">
+            <div class="fg-row">
+              <div class="fg">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="Ihr Name" required>
+              </div>
+              <div class="fg">
+                <label for="schule">Schule</label>
+                <input type="text" id="schule" name="schule" placeholder="Name der Schule">
+              </div>
+            </div>
+            <div class="fg">
+              <label for="email">E-Mail</label>
+              <input type="email" id="email" name="email" placeholder="ihre@schule.de" required>
+            </div>
+            <div class="fg">
+              <label for="msg">Nachricht</label>
+              <textarea id="msg" name="message" rows="5" placeholder="Wie können wir helfen?"></textarea>
+            </div>
+            <button type="submit" class="btn-navy" style="width:100%;justify-content:center">
+              Nachricht senden
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <div class="footer-logo-mark">
+          <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="rgba(255,255,255,0.12)"/>
+            <rect x="7" y="7" width="26" height="5" rx="2.5" fill="white"/>
+            <rect x="10" y="13" width="20" height="16" rx="1.5" fill="none" stroke="white" stroke-width="1.5" stroke-opacity="0.4"/>
+            <line x1="13" y1="19" x2="21" y2="19" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+            <line x1="13" y1="23" x2="19" y2="23" stroke="white" stroke-width="1.75" stroke-linecap="round"/>
+            <circle cx="26" cy="22" r="2.5" fill="white"/>
+            <rect x="7" y="30" width="26" height="3" rx="1.5" fill="white" fill-opacity="0.4"/>
+          </svg>
+        </div>
+        <span class="footer-logo-text">Ladenblick</span>
+      </div>
+      <div class="footer-copy">Entwickelt in Deutschland · Speziell für Schülerfirmen · © 2025</div>
+      <ul class="footer-links">
+        <li><a href="#datenschutz">Datenschutz</a></li>
+        <li><a href="#preise">Preise</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll shadow
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 8);
+    }, { passive: true });
+
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -32px 0px' });
+    revealEls.forEach(el => io.observe(el));
+
+    window.addEventListener('load', () => {
+      revealEls.forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight) {
+          el.classList.add('visible');
+        }
+      });
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const ans  = item.querySelector('.faq-ans');
+        const open = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-ans').style.maxHeight = '0';
+        });
+        if (!open) {
+          item.classList.add('open');
+          ans.style.maxHeight = ans.scrollHeight + 'px';
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
