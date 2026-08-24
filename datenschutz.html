@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Datenschutzerklärung — Ladenblick</title>
+  <meta name="description" content="Datenschutzerklärung für die Ladenblick iPad-Kassensoftware.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #1E3A5F;
+      --blue: #2563EB;
+      --bg: #FFFFFF;
+      --surface: #F8FAFC;
+      --border: #E2E8F0;
+      --text: #0F172A;
+      --muted: #475569;
+
+      --ff-display: 'Fraunces', Georgia, serif;
+      --ff-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --mw: 760px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--ff-body);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    .nav {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px;
+    }
+
+    .nav a.back {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    main {
+      max-width: var(--mw);
+      margin: 0 auto;
+      padding: 56px 24px 96px;
+    }
+
+    h1 {
+      font-family: var(--ff-display);
+      font-size: 34px;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-family: var(--ff-display);
+      font-size: 21px;
+      color: var(--navy);
+      margin-top: 40px;
+      margin-bottom: 12px;
+    }
+
+    p,
+    li {
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="nav"><a class="back" href="./index.html">← Ladenblick</a></div>
+  <main>
+    <h1>Datenschutzerklärung</h1>
+    <p class="updated">Stand: 24. August 2026</p>
+
+    <h2>1. Verantwortlicher</h2>
+    <p>
+      Nils Schlalos<br>
+      August-Niemann-Str. 26<br>
+      26203 Wardenburg<br>
+      E-Mail: <a href="mailto:Ladenblick@gmail.com">Ladenblick@gmail.com</a>
+    </p>
+
+    <h2>2. Grundsatz: Ladenblick verarbeitet keine personenbezogenen Daten auf Servern</h2>
+    <p>
+      Ladenblick ist eine vollständig offline funktionierende Kassen-App für iPads. Die App verbindet sich zu keinem
+      Zeitpunkt mit dem Internet, sendet keine Daten an externe Server und verwendet keinerlei Analyse-, Tracking- oder
+      Werbe-SDKs Dritter.
+    </p>
+
+    <h2>3. Welche Daten lokal auf dem Gerät gespeichert werden</h2>
+    <p>Innerhalb der App werden ausschließlich lokal auf dem jeweiligen iPad gespeichert, in einer lokalen
+      SQLite-Datenbank, die das Gerät nie verlässt:</p>
+    <ul>
+      <li>Nutzernamen und Passwort-Hashes (SHA-256 mit individuellem Salt) der angelegten Kassierer- und Admin-Konten
+        der Schülerfirma</li>
+      <li>Produktkatalog, Preise und Lagerbestände</li>
+      <li>Verkaufstransaktionen mit Zeitstempel und zuordnendem Kassierer-Konto, zur Nachvollziehbarkeit innerhalb der
+        Schülerfirma</li>
+      <li>Ladenname und Logo, sofern von der Schule hinterlegt</li>
+    </ul>
+    <p>
+      Diese Daten betreffen ausschließlich schulinterne, von der Schule selbst verwaltete Nutzerkonten (Schülerinnen und
+      Schüler, die die Kasse bedienen) — es werden keine Daten von Kundinnen und Kunden der Schülerfirma erhoben oder
+      gespeichert.
+    </p>
+
+    <h2>4. Keine Weitergabe an Dritte</h2>
+    <p>
+      Da die App keine Netzwerkverbindung herstellt, ist eine Übermittlung von Daten an Ladenblick, an den Entwickler
+      oder an sonstige Dritte technisch ausgeschlossen. Ein Export der Verkaufsdaten (z. B. als CSV für die Buchhaltung)
+      erfolgt ausschließlich lokal auf Initiative der Nutzerin bzw. des Nutzers über die iPad-eigene Teilen-Funktion.
+    </p>
+
+    <h2>5. Löschung</h2>
+    <p>
+      Alle lokal gespeicherten Daten können jederzeit durch Deinstallation der App vom iPad vollständig gelöscht werden.
+    </p>
+
+    <h2>6. Kontakt</h2>
+    <p>
+      Fragen zum Datenschutz richten Sie bitte an <a href="mailto:Ladenblick@gmail.com">Ladenblick@gmail.com</a>.
+    </p>
+  </main>
+</body>
+
+</html>
